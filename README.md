@@ -4,7 +4,7 @@
   </a>
 </p>
 <h3 align="center">
-   Rosetta Node Gateway
+   Digibyte - Rosetta Node Gateway
 </h3>
 <p align="center">
 Gateway layer which connects the rosetta's CLI with a actually blockchain node <br/>
