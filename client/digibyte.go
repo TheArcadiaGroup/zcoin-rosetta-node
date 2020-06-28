@@ -32,34 +32,12 @@ type NetworkInfo struct {
 type (
 	// DigibyteClient is the Digibyte blockchain client interface.
 	DigibyteClient interface {
-		// 	// GetChainID returns the network chain context, derived from the
-		// 	// genesis document.
-		// 	GetChainID(ctx context.Context) (string, error)
 
 		// GetBlock returns the IoTex block at given height.
 		GetBlock(ctx context.Context, height int64) (*wire.MsgBlock, error)
 
-		// 	// GetLatestBlock returns latest IoTex block.
-		// 	GetLatestBlock(ctx context.Context) (*IoTexBlock, error)
-
-		// 	// GetGenesisBlock returns the IoTex genesis block.
-		// 	GetGenesisBlock(ctx context.Context) (*IoTexBlock, error)
-
-		// 	// GetAccount returns the IoTex staking account for given owner address
-		// 	// at given height.
-		// 	GetAccount(ctx context.Context, height int64, owner string) (*Account, error)
-
-		// 	// SubmitTx submits the given encoded transaction to the node.
-		// 	SubmitTx(ctx context.Context, tx *iotextypes.Action) (txid string, err error)
-
 		// GetStatus returns the status overview of the node.
 		GetStatus(ctx context.Context) (*btcjson.GetBlockChainInfoResult, error)
-
-		// 	// GetVersion returns the server's version.
-		// 	GetVersion(ctx context.Context) (*iotexapi.GetServerMetaResponse, error)
-
-		// 	// GetTransactions returns transactions of the block.
-		// 	GetTransactions(ctx context.Context, height int64) ([]*types.Transaction, error)
 
 		// GetConfig returns the config.
 		GetConfig() *configuration.Config
