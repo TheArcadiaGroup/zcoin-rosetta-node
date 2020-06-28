@@ -65,21 +65,6 @@ type (
 		GetConfig() *configuration.Config
 	}
 
-	// DigibyteBlock is the Digibyte blockchain's block.
-	DigibyteBlock struct {
-		Height       int64  // Block height.
-		Hash         string // Block hash.
-		Timestamp    int64  // UNIX time, converted to milliseconds.
-		ParentHeight int64  // Height of parent block.
-		ParentHash   string // Hash of parent block.
-	}
-
-	// Account represents a combined address range
-	Account struct {
-		Nonce   uint64
-		Balance string
-	}
-
 	// DigibyteRPCClient is an implementation of DigibyteClient using RPC.
 	DigibyteRPCClient struct {
 		sync.RWMutex
