@@ -7,13 +7,14 @@
 package client
 
 import (
-	"crypto/tls"
+	"context"
+	"log"
 	"sync"
 
+	"github.com/btcsuite/btcd/btcjson"
+	"github.com/btcsuite/btcd/rpcclient"
+	"github.com/btcsuite/btcd/wire"
 	"github.com/marpme/digibyte-rosetta-node/configuration"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/connectivity"
-	"google.golang.org/grpc/credentials"
 )
 
 const (
@@ -24,6 +25,10 @@ const (
 	ActionTypeFee = "fee"
 )
 
+type NetworkInfo struct {
+	version string `json:"version"`
+}
+
 type (
 	// DigibyteClient is the Digibyte blockchain client interface.
 	DigibyteClient interface {
@@ -31,8 +36,8 @@ type (
 		// 	// genesis document.
 		// 	GetChainID(ctx context.Context) (string, error)
 
-		// 	// GetBlock returns the IoTex block at given height.
-		// 	GetBlock(ctx context.Context, height int64) (*IoTexBlock, error)
+		// GetBlock returns the IoTex block at given height.
+		GetBlock(ctx context.Context, height int64) (*wire.MsgBlock, error)
 
 		// 	// GetLatestBlock returns latest IoTex block.
 		// 	GetLatestBlock(ctx context.Context) (*IoTexBlock, error)
@@ -47,8 +52,8 @@ type (
 		// 	// SubmitTx submits the given encoded transaction to the node.
 		// 	SubmitTx(ctx context.Context, tx *iotextypes.Action) (txid string, err error)
 
-		// // GetStatus returns the status overview of the node.
-		// GetStatus(ctx context.Context) (*iotexapi.GetChainMetaResponse, error)
+		// GetStatus returns the status overview of the node.
+		GetStatus(ctx context.Context) (*btcjson.GetBlockChainInfoResult, error)
 
 		// 	// GetVersion returns the server's version.
 		// 	GetVersion(ctx context.Context) (*iotexapi.GetServerMetaResponse, error)
@@ -60,7 +65,7 @@ type (
 		GetConfig() *configuration.Config
 	}
 
-	// IoTexBlock is the IoTex blockchain's block.
+	// DigibyteBlock is the Digibyte blockchain's block.
 	DigibyteBlock struct {
 		Height       int64  // Block height.
 		Hash         string // Block hash.
@@ -69,42 +74,66 @@ type (
 		ParentHash   string // Hash of parent block.
 	}
 
+	// Account represents a combined address range
 	Account struct {
 		Nonce   uint64
 		Balance string
 	}
 
-	// grpcDigibyteClient is an implementation of DigibyteClient using gRPC.
-	grpcDigibyteClient struct {
+	// DigibyteRPCClient is an implementation of DigibyteClient using RPC.
+	DigibyteRPCClient struct {
 		sync.RWMutex
 
-		endpoint string
-		grpcConn *grpc.ClientConn
-		cfg      *configuration.Config
+		endpoint          string
+		rpcConnConfig     *rpcclient.ConnConfig
+		applicationConfig *configuration.Config
 	}
 )
 
 // NewDigibyteClient returns an implementation of DigibyteClient
 func NewDigibyteClient(cfg *configuration.Config) (cli DigibyteClient, err error) {
-	grpc, err := grpc.Dial(cfg.Server.Endpoint, grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})))
+	rpcConnConfig := rpcclient.ConnConfig{
+		Host:         cfg.Server.Endpoint,
+		User:         cfg.Server.Username,
+		Pass:         cfg.Server.Password,
+		HTTPPostMode: true,                   // Bitcoin core only supports HTTP POST mode
+		DisableTLS:   !cfg.Server.TLSEnabled, // Bitcoin core does not provide TLS by default
+	}
+
+	return &DigibyteRPCClient{
+		rpcConnConfig:     &rpcConnConfig,
+		applicationConfig: cfg,
+	}, nil
+}
+
+func (rpcClient *DigibyteRPCClient) reconnect() (client *rpcclient.Client) {
+	// Notice the notification parameter is nil since notifications are
+	// not supported in HTTP POST mode.
+	client, err := rpcclient.New(rpcClient.rpcConnConfig, nil)
 	if err != nil {
-		return
+		log.Fatal(err)
 	}
-	cli = &grpcDigibyteClient{grpcConn: grpc, cfg: cfg}
-	return
+
+	return client
 }
 
-func (c *grpcDigibyteClient) reconnect() (err error) {
-	c.Lock()
-	defer c.Unlock()
-	// Check if the existing connection is good.
-	if c.grpcConn != nil && c.grpcConn.GetState() != connectivity.Shutdown {
-		return
-	}
-	c.grpcConn, err = grpc.Dial(c.endpoint, grpc.WithTransportCredentials(credentials.NewTLS(&tls.Config{})))
-	return err
+func (rpcClient *DigibyteRPCClient) GetConfig() *configuration.Config {
+	return rpcClient.applicationConfig
 }
 
-func (c *grpcDigibyteClient) GetConfig() *configuration.Config {
-	return c.cfg
+func (rpcClient *DigibyteRPCClient) GetStatus(ctx context.Context) (*btcjson.GetBlockChainInfoResult, error) {
+	client := rpcClient.reconnect()
+	defer client.Shutdown()
+
+	result, err := client.GetBlockChainInfo()
+	return result, err
+}
+
+func (rpcClient *DigibyteRPCClient) GetBlock(ctx context.Context, height int64) (*wire.MsgBlock, error) {
+	client := rpcClient.reconnect()
+	defer client.Shutdown()
+
+	result, err := client.GetBlockHash(height)
+	block, err := client.GetBlock(result)
+	return block, err
 }

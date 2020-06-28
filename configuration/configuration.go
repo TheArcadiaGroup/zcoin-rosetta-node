@@ -23,6 +23,9 @@ type (
 	Server struct {
 		Port            string `yaml:"port"`
 		Endpoint        string `yaml:"endpoint"`
+		TLSEnabled      bool   `yaml:"tlsEnabled"`
+		Username        string `yaml:"username"`
+		Password        string `yaml:"password"`
 		RosettaVersion  string `yaml:"rosettaVersion"`
 		DigibyteVersion string `yaml:"digibyteVersion"`
 	}

@@ -93,37 +93,40 @@ func (network *networkAPIService) NetworkStatus(
 	ctx context.Context,
 	request *types.NetworkRequest,
 ) (*types.NetworkStatusResponse, *types.Error) {
-	// terr := ValidateNetworkIdentifier(ctx, network.client, request.NetworkIdentifier)
-	// if terr != nil {
-	// 	return nil, terr
-	// }
+	terr := ValidateNetworkIdentifier(ctx, network.client, request.NetworkIdentifier)
+	if terr != nil {
+		return nil, terr
+	}
 
-	// status, err := network.client.GetStatus(ctx)
-	// if err != nil {
-	// 	return nil, ErrUnableToGetNodeStatus
-	// }
-	// hei := int64(status.GetChainMeta().GetHeight())
-	// blk, err := network.client.GetBlock(ctx, hei)
-	// if err != nil {
-	// 	return nil, ErrUnableToGetNodeStatus
-	// }
-	// genesisblk, err := network.client.GetBlock(ctx, 1)
-	// if err != nil {
-	// 	return nil, ErrUnableToGetNodeStatus
-	// }
-	// resp := &types.NetworkStatusResponse{
-	// 	CurrentBlockIdentifier: &types.BlockIdentifier{
-	// 		Index: hei,
-	// 		Hash:  blk.Hash,
-	// 	},
-	// 	CurrentBlockTimestamp: blk.Timestamp, // ms
-	// 	GenesisBlockIdentifier: &types.BlockIdentifier{
-	// 		Index: genesisblk.Height,
-	// 		Hash:  genesisblk.Hash,
-	// 	},
-	// 	Peers: nil,
-	// }
+	status, err := network.client.GetStatus(ctx)
+	if err != nil {
+		return nil, ErrUnableToGetNodeStatus
+	}
 
-	// return resp, nil
-	return nil, nil
+	height := int64(status.Blocks)
+
+	bestBlock, err := network.client.GetBlock(ctx, height)
+	if err != nil {
+		return nil, ErrUnableToGetNodeStatus
+	}
+
+	genesisBlock, err := network.client.GetBlock(ctx, 0)
+	if err != nil {
+		return nil, ErrUnableToGetNodeStatus
+	}
+
+	resp := &types.NetworkStatusResponse{
+		CurrentBlockIdentifier: &types.BlockIdentifier{
+			Index: height,
+			Hash:  bestBlock.BlockHash().String(),
+		},
+		CurrentBlockTimestamp: bestBlock.Header.Timestamp.Unix(), // ms
+		GenesisBlockIdentifier: &types.BlockIdentifier{
+			Index: 0,
+			Hash:  genesisBlock.BlockHash().String(),
+		},
+		Peers: nil,
+	}
+
+	return resp, nil
 }
