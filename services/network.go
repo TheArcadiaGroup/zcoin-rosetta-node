@@ -46,8 +46,8 @@ func (network *networkAPIService) NetworkOptions(
 	cfg := network.client.GetConfig()
 	return &types.NetworkOptionsResponse{
 		Version: &types.Version{
-			RosettaVersion: cfg.Server.RosettaVersion,
-			NodeVersion:    cfg.Server.DigibyteVersion,
+			RosettaVersion: cfg.Version.RosettaVersion,
+			NodeVersion:    cfg.Version.DigibyteVersion,
 		},
 		Allow: &types.Allow{
 			OperationStatuses: []*types.OperationStatus{

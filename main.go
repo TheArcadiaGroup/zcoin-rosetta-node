@@ -13,10 +13,8 @@ import (
 	"github.com/marpme/digibyte-rosetta-node/services"
 )
 
-const (
-	ConfigPath = "ROSETTA_DGB_CONFIG_PATH"
-)
-
+// NewBlockchainRouter creates a blockchain specific router
+// that will handle common routes specified inside the rosetta API specification
 func NewBlockchainRouter(client client.DigibyteClient) http.Handler {
 	assert, err := asserter.NewServer([]*types.NetworkIdentifier{
 		{
@@ -36,22 +34,18 @@ func NewBlockchainRouter(client client.DigibyteClient) http.Handler {
 }
 
 func main() {
-	configPath := os.Getenv(ConfigPath)
+	configPath := os.Getenv(configuration.ConfigPath)
 	if configPath == "" {
 		configPath = "config.yaml"
 	}
+
 	cfg, err := configuration.New(configPath)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "ERROR: Failed to parse config: %v\n", err)
 		os.Exit(1)
 	}
 
-	client, err := client.NewDigibyteClient(cfg)
-	if err != nil {
-		fmt.Fprintf(os.Stderr, "ERROR: Failed to prepare IoTex gRPC client: %v\n", err)
-		os.Exit(1)
-	}
-
+	client := client.NewDigibyteClient(cfg)
 	router := NewBlockchainRouter(client)
 	fmt.Println("Listening on ", "0.0.0.0:"+cfg.Server.Port)
 	err = http.ListenAndServe("0.0.0.0:"+cfg.Server.Port, router)
