@@ -120,7 +120,7 @@ func (network *networkAPIService) NetworkStatus(
 			Index: height,
 			Hash:  bestBlock.BlockHash().String(),
 		},
-		CurrentBlockTimestamp: bestBlock.Header.Timestamp.Unix(), // ms
+		CurrentBlockTimestamp: bestBlock.Header.Timestamp.Unix() * 1000, // ms
 		GenesisBlockIdentifier: &types.BlockIdentifier{
 			Index: 0,
 			Hash:  genesisBlock.BlockHash().String(),
