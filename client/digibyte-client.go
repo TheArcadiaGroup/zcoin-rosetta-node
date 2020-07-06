@@ -10,8 +10,14 @@ import (
 
 // DigibyteClient is the Digibyte blockchain client interface
 type DigibyteClient interface {
-	// GetBlock returns the IoTex block at given height.
+	// GetBlock returns the digibyte block at given height.
 	GetBlock(ctx context.Context, height int64) (*wire.MsgBlock, error)
+
+	// GetBlock returns the Digibyte block with a given hash.
+	GetBlockByHash(ctx context.Context, hash string) (*wire.MsgBlock, error)
+
+	// GetLatestBlock returns the latest Digibyte block.
+	GetLatestBlock(ctx context.Context) (*wire.MsgBlock, error)
 
 	// GetStatus returns the status overview of the node.
 	GetStatus(ctx context.Context) (*btcjson.GetBlockChainInfoResult, error)

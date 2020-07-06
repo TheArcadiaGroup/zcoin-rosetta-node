@@ -30,7 +30,8 @@ func NewBlockchainRouter(client client.DigibyteClient) http.Handler {
 	}
 
 	networkAPIController := server.NewNetworkAPIController(services.NewNetworkAPIService(client), assert)
-	return server.NewRouter(networkAPIController)
+	blockAPIController := server.NewBlockAPIController(services.NewBlockAPIService(client), assert)
+	return server.NewRouter(networkAPIController, blockAPIController)
 }
 
 func main() {

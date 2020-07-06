@@ -5,6 +5,7 @@ import (
 	"log"
 
 	"github.com/btcsuite/btcd/btcjson"
+	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/rpcclient"
 	"github.com/btcsuite/btcd/wire"
 	"github.com/marpme/digibyte-rosetta-node/configuration"
@@ -73,4 +74,40 @@ func (rpcClient *DigibyteClientRPC) GetBlock(ctx context.Context, height int64) 
 	result, err := client.GetBlockHash(height)
 	block, err := client.GetBlock(result)
 	return block, err
+}
+
+// GetBlockByHash will return you the block specification for a given height
+func (rpcClient *DigibyteClientRPC) GetBlockByHash(ctx context.Context, hash string) (*wire.MsgBlock, error) {
+	client := rpcClient.reconnect()
+	defer client.Shutdown()
+
+	blockHash, err := chainhash.NewHashFromStr(hash)
+	if err != nil {
+		return nil, err
+	}
+
+	block, err := client.GetBlock(blockHash)
+	if err != nil {
+		return nil, err
+	}
+
+	return block, nil
+}
+
+// GetLatestBlock returns the latest Digibyte block.
+func (rpcClient *DigibyteClientRPC) GetLatestBlock(ctx context.Context) (*wire.MsgBlock, error) {
+	client := rpcClient.reconnect()
+	defer client.Shutdown()
+
+	latestBlockHash, err := client.GetBestBlockHash()
+	if err != nil {
+		return nil, err
+	}
+
+	block, err := client.GetBlock(latestBlockHash)
+	if err != nil {
+		return nil, err
+	}
+
+	return block, nil
 }

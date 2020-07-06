@@ -18,6 +18,7 @@ type networkAPIService struct {
 	client client.DigibyteClient
 }
 
+// NewNetworkAPIService creates a new services for gathering information about the network
 func NewNetworkAPIService(client client.DigibyteClient) server.NetworkAPIServicer {
 	return &networkAPIService{
 		client: client,
