@@ -11,10 +11,13 @@ import (
 // DigibyteClient is the Digibyte blockchain client interface
 type DigibyteClient interface {
 	// GetBlock returns the digibyte block at given height.
-	GetBlock(ctx context.Context, height int64) (*wire.MsgBlock, error)
+	GetBlock(ctx context.Context, height int64) (*btcjson.GetBlockVerboseResult, error)
 
 	// GetBlock returns the Digibyte block with a given hash.
-	GetBlockByHash(ctx context.Context, hash string) (*wire.MsgBlock, error)
+	GetBlockByHash(ctx context.Context, hash string) (*btcjson.GetBlockVerboseResult, error)
+
+	// GetBlock returns the Digibyte block with a given hash.
+	GetBlockByHashWithTransaction(ctx context.Context, hash string) (*wire.MsgBlock, error)
 
 	// GetLatestBlock returns the latest Digibyte block.
 	GetLatestBlock(ctx context.Context) (*wire.MsgBlock, error)

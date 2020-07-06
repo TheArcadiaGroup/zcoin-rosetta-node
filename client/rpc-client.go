@@ -67,17 +67,17 @@ func (rpcClient *DigibyteClientRPC) GetStatus(ctx context.Context) (*btcjson.Get
 }
 
 // GetBlock will return you the block specification for a given height
-func (rpcClient *DigibyteClientRPC) GetBlock(ctx context.Context, height int64) (*wire.MsgBlock, error) {
+func (rpcClient *DigibyteClientRPC) GetBlock(ctx context.Context, height int64) (*btcjson.GetBlockVerboseResult, error) {
 	client := rpcClient.reconnect()
 	defer client.Shutdown()
 
 	result, err := client.GetBlockHash(height)
-	block, err := client.GetBlock(result)
+	block, err := client.GetBlockVerbose(result)
 	return block, err
 }
 
 // GetBlockByHash will return you the block specification for a given height
-func (rpcClient *DigibyteClientRPC) GetBlockByHash(ctx context.Context, hash string) (*wire.MsgBlock, error) {
+func (rpcClient *DigibyteClientRPC) GetBlockByHash(ctx context.Context, hash string) (*btcjson.GetBlockVerboseResult, error) {
 	client := rpcClient.reconnect()
 	defer client.Shutdown()
 
@@ -86,7 +86,7 @@ func (rpcClient *DigibyteClientRPC) GetBlockByHash(ctx context.Context, hash str
 		return nil, err
 	}
 
-	block, err := client.GetBlock(blockHash)
+	block, err := client.GetBlockVerbose(blockHash)
 	if err != nil {
 		return nil, err
 	}
@@ -105,6 +105,24 @@ func (rpcClient *DigibyteClientRPC) GetLatestBlock(ctx context.Context) (*wire.M
 	}
 
 	block, err := client.GetBlock(latestBlockHash)
+	if err != nil {
+		return nil, err
+	}
+
+	return block, nil
+}
+
+// GetBlockByHashWithTransaction returns the Digibyte block including transactions
+func (rpcClient *DigibyteClientRPC) GetBlockByHashWithTransaction(ctx context.Context, hash string) (*wire.MsgBlock, error) {
+	client := rpcClient.reconnect()
+	defer client.Shutdown()
+
+	blockHash, err := chainhash.NewHashFromStr(hash)
+	if err != nil {
+		return nil, err
+	}
+
+	block, err := client.GetBlock(blockHash)
 	if err != nil {
 		return nil, err
 	}

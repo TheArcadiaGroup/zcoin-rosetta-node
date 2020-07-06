@@ -119,12 +119,12 @@ func (network *networkAPIService) NetworkStatus(
 	resp := &types.NetworkStatusResponse{
 		CurrentBlockIdentifier: &types.BlockIdentifier{
 			Index: height,
-			Hash:  bestBlock.BlockHash().String(),
+			Hash:  bestBlock.Hash,
 		},
-		CurrentBlockTimestamp: bestBlock.Header.Timestamp.Unix() * 1000, // ms
+		CurrentBlockTimestamp: bestBlock.Time * 1000, // ms
 		GenesisBlockIdentifier: &types.BlockIdentifier{
 			Index: 0,
-			Hash:  genesisBlock.BlockHash().String(),
+			Hash:  genesisBlock.Hash,
 		},
 		Peers: nil,
 	}

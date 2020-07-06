@@ -3,7 +3,7 @@ package services
 import (
 	"context"
 
-	"github.com/btcsuite/btcd/wire"
+	"github.com/btcsuite/btcd/btcjson"
 	"github.com/coinbase/rosetta-sdk-go/server"
 	"github.com/coinbase/rosetta-sdk-go/types"
 	"github.com/marpme/digibyte-rosetta-node/client"
@@ -22,20 +22,20 @@ func NewBlockAPIService(client client.DigibyteClient) server.BlockAPIServicer {
 	}
 }
 
-func mapTransactions(txs []*wire.MsgTx) []*types.TransactionIdentifier {
+func mapTransactions(txs []string) []*types.TransactionIdentifier {
 	var transactionsIdentifiers []*types.TransactionIdentifier
 	for i := 0; i < len(txs); i++ {
 		transactionsIdentifiers = append(transactionsIdentifiers, &types.TransactionIdentifier{
-			Hash: txs[i].TxHash().String(),
+			Hash: txs[i],
 		})
 	}
 
 	return transactionsIdentifiers
 }
 
-func (blockService *blockAPIService) retriveBlock(ctx context.Context, blockRequest *types.BlockRequest) (*wire.MsgBlock, *wire.MsgBlock, *types.Error) {
+func (blockService *blockAPIService) retriveBlock(ctx context.Context, blockRequest *types.BlockRequest) (*btcjson.GetBlockVerboseResult, *btcjson.GetBlockVerboseResult, *types.Error) {
 
-	var block, prevBlock *wire.MsgBlock
+	var block, prevBlock *btcjson.GetBlockVerboseResult
 	var err error
 
 	if blockRequest.BlockIdentifier.Index != nil {
@@ -47,13 +47,13 @@ func (blockService *blockAPIService) retriveBlock(ctx context.Context, blockRequ
 		if err != nil {
 			return nil, nil, ErrUnableToGetBlk
 		}
-		prevBlock, err = blockService.client.GetBlockByHash(ctx, block.Header.PrevBlock.String())
+		prevBlock, err = blockService.client.GetBlockByHash(ctx, block.PreviousHash)
 	} else {
 		block, err := blockService.client.GetLatestBlock(ctx)
 		if err != nil {
 			return nil, nil, ErrUnableToGetBlk
 		}
-		prevBlock, err := blockService.client.GetBlockByHash(ctx, block.Header.PrevBlock.String())
+		prevBlock, err = blockService.client.GetBlockByHash(ctx, block.Header.PrevBlock.String())
 	}
 
 	if err != nil {
@@ -74,20 +74,51 @@ func (blockService *blockAPIService) Block(ctx context.Context, blockRequest *ty
 	return &types.BlockResponse{
 		Block: &types.Block{
 			BlockIdentifier: &types.BlockIdentifier{
-				Index: block.,
-				Hash:  block.BlockHash().String(),
+				Hash: block.Hash,
 			},
 			ParentBlockIdentifier: &types.BlockIdentifier{
-				Index: prevIndex,
-				Hash:  prevBlock.BlockHash().String(),
+				Hash: prevBlock.Hash,
 			},
-			Timestamp: block.Header.Timestamp.Unix(),
+			Timestamp: block.Time,
 		},
-		OtherTransactions: mapTransactions(block.Transactions),
+		OtherTransactions: mapTransactions(block.Tx),
 	}, nil
 }
 
 // BlockTransaction retrieves the block with the given transactions included
 func (blockService *blockAPIService) BlockTransaction(ctx context.Context, blockTransaction *types.BlockTransactionRequest) (*types.BlockTransactionResponse, *types.Error) {
-	panic("not implemented") // TODO: Implement
+	block, err := blockService.client.GetBlockByHashWithTransaction(ctx, blockTransaction.BlockIdentifier.Hash)
+
+	if err != nil {
+		return nil, ErrUnableToGetBlk
+	}
+
+	for index, tx := range block.Transactions {
+		if tx.TxHash().String() == blockTransaction.TransactionIdentifier.Hash {
+			txOperations := make([]*types.Operation, len(tx.TxOut))
+
+			for _, vOut := range block.Transactions[index].TxOut {
+				txOperations.append(txOperations, &types.Operation{
+					OperationIdentifier: &types.OperationIdentifier {
+						Index: vOut.PkScript
+					}
+				})
+			}
+
+			return &types.BlockTransactionResponse{
+				Transaction: &types.Transaction{
+					TransactionIdentifier: &types.TransactionIdentifier{
+						Hash: tx.TxHash().String(),
+					},
+					Metadata: map[string]interface{}{
+						"size":     tx.SerializeSize(),
+						"lockTime": tx.LockTime,
+					},
+					Operations: txOperations,
+				},
+			}, nil
+		}
+	}
+
+	return nil, ErrUnableToGetTxns
 }
