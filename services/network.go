@@ -18,7 +18,7 @@ type networkAPIService struct {
 	client client.DigibyteClient
 }
 
-// NewNetworkAPIService creates a new services for gathering information about the network
+// NewNetworkAPIService creates a new service to communicate about Network related topics
 func NewNetworkAPIService(client client.DigibyteClient) server.NetworkAPIServicer {
 	return &networkAPIService{
 		client: client,
@@ -121,7 +121,7 @@ func (network *networkAPIService) NetworkStatus(
 			Index: height,
 			Hash:  bestBlock.BlockHash().String(),
 		},
-		CurrentBlockTimestamp: bestBlock.Header.Timestamp.Unix(), // ms
+		CurrentBlockTimestamp: bestBlock.Header.Timestamp.Unix() * 1000, // ms
 		GenesisBlockIdentifier: &types.BlockIdentifier{
 			Index: 0,
 			Hash:  genesisBlock.BlockHash().String(),
