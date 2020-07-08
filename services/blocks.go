@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/coinbase/rosetta-sdk-go/server"
@@ -40,7 +41,14 @@ func (blockService *blockAPIService) retriveBlock(ctx context.Context, blockRequ
 
 	if blockRequest.BlockIdentifier.Index != nil {
 		block, err = blockService.client.GetBlock(ctx, *blockRequest.BlockIdentifier.Index)
-		prevBlock, err = blockService.client.GetBlock(ctx, *blockRequest.BlockIdentifier.Index-1)
+
+		if *blockRequest.BlockIdentifier.Index == 0 {
+			prevBlock = &btcjson.GetBlockVerboseResult{
+				Hash: "0x0",
+			}
+		} else {
+			prevBlock, err = blockService.client.GetBlock(ctx, *blockRequest.BlockIdentifier.Index-1)
+		}
 	} else if blockRequest.BlockIdentifier.Hash != nil {
 		block, err = blockService.client.GetBlockByHash(ctx, *blockRequest.BlockIdentifier.Hash)
 
@@ -93,25 +101,49 @@ func (blockService *blockAPIService) BlockTransaction(ctx context.Context, block
 		return nil, ErrUnableToGetBlk
 	}
 
-	for index, tx := range block.Transactions {
-		if tx.TxHash().String() == blockTransaction.TransactionIdentifier.Hash {
-			txOperations := make([]*types.Operation, len(tx.TxOut))
+	var networkIndex *int64 = new(int64)
+	*networkIndex = 0
 
-			for _, vOut := range block.Transactions[index].TxOut {
-				txOperations.append(txOperations, &types.Operation{
-					OperationIdentifier: &types.OperationIdentifier {
-						Index: vOut.PkScript
-					}
-				})
+	for index, tx := range block.Tx {
+		if tx.Hash == blockTransaction.TransactionIdentifier.Hash {
+			txOperations := make([]*types.Operation, 0)
+
+			for _, vOut := range block.Tx[index].Vout {
+
+				if !client.IsValidPaymentType(vOut.ScriptPubKey.Type) {
+					continue
+				}
+
+				for _, address := range vOut.ScriptPubKey.Addresses {
+					txOperations = append(txOperations, &types.Operation{
+						OperationIdentifier: &types.OperationIdentifier{
+							Index:        int64(vOut.N),
+							NetworkIndex: networkIndex,
+						},
+						Type:   client.Transfer,
+						Status: client.StatusSuccess,
+						Account: &types.AccountIdentifier{
+							Address: address,
+						},
+						Amount: &types.Amount{
+							Value: fmt.Sprintf("%d", int64(vOut.Value*client.BASE_CURRENCY_DECIMAL_DIVIDER)),
+							Currency: &types.Currency{
+								Decimals: client.BASE_CURRENCY_DECIMAL_COUNT,
+								Symbol:   client.CURRENCY_SYMBOL,
+							},
+						},
+					})
+				}
+
 			}
 
 			return &types.BlockTransactionResponse{
 				Transaction: &types.Transaction{
 					TransactionIdentifier: &types.TransactionIdentifier{
-						Hash: tx.TxHash().String(),
+						Hash: tx.Hash,
 					},
 					Metadata: map[string]interface{}{
-						"size":     tx.SerializeSize(),
+						"size":     tx.Size,
 						"lockTime": tx.LockTime,
 					},
 					Operations: txOperations,

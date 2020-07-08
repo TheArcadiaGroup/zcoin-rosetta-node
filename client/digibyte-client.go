@@ -17,7 +17,7 @@ type DigibyteClient interface {
 	GetBlockByHash(ctx context.Context, hash string) (*btcjson.GetBlockVerboseResult, error)
 
 	// GetBlock returns the Digibyte block with a given hash.
-	GetBlockByHashWithTransaction(ctx context.Context, hash string) (*wire.MsgBlock, error)
+	GetBlockByHashWithTransaction(ctx context.Context, hash string) (*btcjson.GetBlockVerboseTxResult, error)
 
 	// GetLatestBlock returns the latest Digibyte block.
 	GetLatestBlock(ctx context.Context) (*wire.MsgBlock, error)

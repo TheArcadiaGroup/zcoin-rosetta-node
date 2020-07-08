@@ -13,11 +13,24 @@ import (
 
 const (
 	Transfer      = "transfer"
-	Execution     = "execution"
 	StatusSuccess = "success"
 	StatusFail    = "fail"
 	ActionTypeFee = "fee"
 )
+
+const (
+	WITNESS_V0 = "witness_v0_keyhash"
+	P2PKH      = "pubkeyhash"
+	PUBKEY     = "pubkey"
+)
+
+const BASE_CURRENCY_DECIMAL_DIVIDER = 100000000
+const BASE_CURRENCY_DECIMAL_COUNT = 8
+const CURRENCY_SYMBOL = "DGB"
+
+func IsValidPaymentType(paymentType string) bool {
+	return paymentType == P2PKH || paymentType == WITNESS_V0 || paymentType == PUBKEY
+}
 
 // DigibyteClientRPC is an implementation of DigibyteClient using RPC.
 type DigibyteClientRPC struct {
@@ -113,7 +126,7 @@ func (rpcClient *DigibyteClientRPC) GetLatestBlock(ctx context.Context) (*wire.M
 }
 
 // GetBlockByHashWithTransaction returns the Digibyte block including transactions
-func (rpcClient *DigibyteClientRPC) GetBlockByHashWithTransaction(ctx context.Context, hash string) (*wire.MsgBlock, error) {
+func (rpcClient *DigibyteClientRPC) GetBlockByHashWithTransaction(ctx context.Context, hash string) (*btcjson.GetBlockVerboseTxResult, error) {
 	client := rpcClient.reconnect()
 	defer client.Shutdown()
 
@@ -122,7 +135,7 @@ func (rpcClient *DigibyteClientRPC) GetBlockByHashWithTransaction(ctx context.Co
 		return nil, err
 	}
 
-	block, err := client.GetBlock(blockHash)
+	block, err := client.GetBlockVerboseTx(blockHash)
 	if err != nil {
 		return nil, err
 	}

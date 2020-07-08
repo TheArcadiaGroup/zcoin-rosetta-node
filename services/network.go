@@ -62,9 +62,7 @@ func (network *networkAPIService) NetworkOptions(
 				},
 			},
 			OperationTypes: []string{
-				client.ActionTypeFee,
 				client.Transfer,
-				client.Execution,
 			},
 			Errors: ErrorList,
 		},
