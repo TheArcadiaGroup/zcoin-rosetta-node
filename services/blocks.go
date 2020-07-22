@@ -8,12 +8,14 @@ import (
 	"github.com/coinbase/rosetta-sdk-go/server"
 	"github.com/coinbase/rosetta-sdk-go/types"
 	"github.com/marpme/digibyte-rosetta-node/client"
+	"github.com/marpme/digibyte-rosetta-node/repository"
 )
 
 // BlockAPIService client based implementation of the block servicer
 type blockAPIService struct {
 	server.BlockAPIServicer
-	client client.DigibyteClient
+	client          client.DigibyteClient
+	blockRepository repository.BlockProvider
 }
 
 // NewBlockAPIService creates a new block API service
