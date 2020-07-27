@@ -4,7 +4,7 @@ package dependency
 
 import (
 	"github.com/google/wire"
-	"github.com/marpme/digibyte-rosetta-node/provider"
+	"github.com/arcadiamediagroup/Zcoin-rosetta-node/provider"
 )
 
 func InitBadgerDb() (*provider.BadgerDB, error) {

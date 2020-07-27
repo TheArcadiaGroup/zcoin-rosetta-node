@@ -7,19 +7,19 @@ import (
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/coinbase/rosetta-sdk-go/server"
 	"github.com/coinbase/rosetta-sdk-go/types"
-	"github.com/marpme/digibyte-rosetta-node/client"
-	"github.com/marpme/digibyte-rosetta-node/repository"
+	"github.com/arcadiamediagroup/Zcoin-rosetta-node/client"
+	"github.com/arcadiamediagroup/Zcoin-rosetta-node/repository"
 )
 
 // BlockAPIService client based implementation of the block servicer
 type blockAPIService struct {
 	server.BlockAPIServicer
-	client          client.DigibyteClient
+	client          client.ZcoinClient
 	blockRepository repository.BlockProvider
 }
 
 // NewBlockAPIService creates a new block API service
-func NewBlockAPIService(client client.DigibyteClient) server.BlockAPIServicer {
+func NewBlockAPIService(client client.ZcoinClient) server.BlockAPIServicer {
 	return &blockAPIService{
 		client: client,
 	}
