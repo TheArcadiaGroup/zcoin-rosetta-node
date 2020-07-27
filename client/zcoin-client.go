@@ -5,7 +5,7 @@ import (
 
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/arcadiamediagroup/zcoin-rosetta-node/configuration"
+	"gopkg.in/ArcadiaMediaGroup/zcoin-rosetta-node.v0/configuration"
 )
 
 // ZcoinClient is the Zcoin blockchain client interface

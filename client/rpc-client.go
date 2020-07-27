@@ -8,7 +8,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/rpcclient"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/arcadiamediagroup/Zcoin-rosetta-node/configuration"
+	"gopkg.in/ArcadiaMediaGroup/zcoin-rosetta-node.v0/configuration"
 )
 
 const (

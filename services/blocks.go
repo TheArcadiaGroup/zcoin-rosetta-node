@@ -7,8 +7,8 @@ import (
 	"github.com/btcsuite/btcd/btcjson"
 	"github.com/coinbase/rosetta-sdk-go/server"
 	"github.com/coinbase/rosetta-sdk-go/types"
-	"github.com/arcadiamediagroup/Zcoin-rosetta-node/client"
-	"github.com/arcadiamediagroup/Zcoin-rosetta-node/repository"
+	"gopkg.in/ArcadiaMediaGroup/zcoin-rosetta-node.v0/client"
+	"gopkg.in/ArcadiaMediaGroup/zcoin-rosetta-node.v0/repository"
 )
 
 // BlockAPIService client based implementation of the block servicer

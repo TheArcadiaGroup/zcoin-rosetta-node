@@ -11,7 +11,7 @@ import (
 
 	"github.com/coinbase/rosetta-sdk-go/server"
 	"github.com/coinbase/rosetta-sdk-go/types"
-	"github.com/arcadiamediagroup/zcoin-rosetta-node/client"
+	"gopkg.in/ArcadiaMediaGroup/zcoin-rosetta-node.v0/client"
 )
 
 type networkAPIService struct {

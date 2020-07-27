@@ -1,4 +1,4 @@
-module github.com/arcadiamediagroup/zcoin-rosetta-node
+module gopkg.in/ArcadiaMediaGroup/zcoin-rosetta-node.v0
 
 go 1.14
 
