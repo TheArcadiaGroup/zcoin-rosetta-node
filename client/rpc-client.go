@@ -8,7 +8,7 @@ import (
 	"github.com/btcsuite/btcd/chaincfg/chainhash"
 	"github.com/btcsuite/btcd/rpcclient"
 	"github.com/btcsuite/btcd/wire"
-	"github.com/marpme/digibyte-rosetta-node/configuration"
+	"github.com/arcadiamediagroup/Zcoin-rosetta-node/configuration"
 )
 
 const (
@@ -26,20 +26,20 @@ const (
 
 const BASE_CURRENCY_DECIMAL_DIVIDER = 100000000
 const BASE_CURRENCY_DECIMAL_COUNT = 8
-const CURRENCY_SYMBOL = "DGB"
+const CURRENCY_SYMBOL = "XZC"
 
 func IsValidPaymentType(paymentType string) bool {
 	return paymentType == P2PKH || paymentType == WITNESS_V0 || paymentType == PUBKEY
 }
 
-// DigibyteClientRPC is an implementation of DigibyteClient using RPC.
-type DigibyteClientRPC struct {
+// ZcoinClientRPC is an implementation of ZcoinClient using RPC.
+type ZcoinClientRPC struct {
 	rpcConnConfig     *rpcclient.ConnConfig
 	applicationConfig *configuration.Config
 }
 
-// NewDigibyteClient returns an implementation of DigibyteClient
-func NewDigibyteClient(applicationConfig *configuration.Config) (cli DigibyteClient) {
+// NewZcoinClient returns an implementation of ZcoinClient
+func NewZcoinClient(applicationConfig *configuration.Config) (cli ZcoinClient) {
 	rpcConnConfig := rpcclient.ConnConfig{
 		Host:         applicationConfig.Node.Endpoint,
 		User:         applicationConfig.Node.Username,
@@ -48,13 +48,13 @@ func NewDigibyteClient(applicationConfig *configuration.Config) (cli DigibyteCli
 		DisableTLS:   !applicationConfig.Node.TLSEnabled, // Bitcoin core does not provide TLS by default
 	}
 
-	return &DigibyteClientRPC{
+	return &ZcoinClientRPC{
 		rpcConnConfig:     &rpcConnConfig,
 		applicationConfig: applicationConfig,
 	}
 }
 
-func (rpcClient *DigibyteClientRPC) reconnect() (client *rpcclient.Client) {
+func (rpcClient *ZcoinClientRPC) reconnect() (client *rpcclient.Client) {
 	// Notice the notification parameter is nil since notifications are
 	// not supported in HTTP POST mode.
 	client, err := rpcclient.New(rpcClient.rpcConnConfig, nil)
@@ -66,12 +66,12 @@ func (rpcClient *DigibyteClientRPC) reconnect() (client *rpcclient.Client) {
 }
 
 // GetConfig retrieves the general application config that has been configured
-func (rpcClient *DigibyteClientRPC) GetConfig() *configuration.Config {
+func (rpcClient *ZcoinClientRPC) GetConfig() *configuration.Config {
 	return rpcClient.applicationConfig
 }
 
 // GetStatus will return the Blockchain base info based on that node
-func (rpcClient *DigibyteClientRPC) GetStatus(ctx context.Context) (*btcjson.GetBlockChainInfoResult, error) {
+func (rpcClient *ZcoinClientRPC) GetStatus(ctx context.Context) (*btcjson.GetBlockChainInfoResult, error) {
 	client := rpcClient.reconnect()
 	defer client.Shutdown()
 
@@ -80,7 +80,7 @@ func (rpcClient *DigibyteClientRPC) GetStatus(ctx context.Context) (*btcjson.Get
 }
 
 // GetBlock will return you the block specification for a given height
-func (rpcClient *DigibyteClientRPC) GetBlock(ctx context.Context, height int64) (*btcjson.GetBlockVerboseResult, error) {
+func (rpcClient *ZcoinClientRPC) GetBlock(ctx context.Context, height int64) (*btcjson.GetBlockVerboseResult, error) {
 	client := rpcClient.reconnect()
 	defer client.Shutdown()
 
@@ -90,7 +90,7 @@ func (rpcClient *DigibyteClientRPC) GetBlock(ctx context.Context, height int64) 
 }
 
 // GetBlockByHash will return you the block specification for a given height
-func (rpcClient *DigibyteClientRPC) GetBlockByHash(ctx context.Context, hash string) (*btcjson.GetBlockVerboseResult, error) {
+func (rpcClient *ZcoinClientRPC) GetBlockByHash(ctx context.Context, hash string) (*btcjson.GetBlockVerboseResult, error) {
 	client := rpcClient.reconnect()
 	defer client.Shutdown()
 
@@ -107,8 +107,8 @@ func (rpcClient *DigibyteClientRPC) GetBlockByHash(ctx context.Context, hash str
 	return block, nil
 }
 
-// GetLatestBlock returns the latest Digibyte block.
-func (rpcClient *DigibyteClientRPC) GetLatestBlock(ctx context.Context) (*wire.MsgBlock, error) {
+// GetLatestBlock returns the latest Zcoin block.
+func (rpcClient *ZcoinClientRPC) GetLatestBlock(ctx context.Context) (*wire.MsgBlock, error) {
 	client := rpcClient.reconnect()
 	defer client.Shutdown()
 
@@ -125,8 +125,8 @@ func (rpcClient *DigibyteClientRPC) GetLatestBlock(ctx context.Context) (*wire.M
 	return block, nil
 }
 
-// GetBlockByHashWithTransaction returns the Digibyte block including transactions
-func (rpcClient *DigibyteClientRPC) GetBlockByHashWithTransaction(ctx context.Context, hash string) (*btcjson.GetBlockVerboseTxResult, error) {
+// GetBlockByHashWithTransaction returns the Zcoin block including transactions
+func (rpcClient *ZcoinClientRPC) GetBlockByHashWithTransaction(ctx context.Context, hash string) (*btcjson.GetBlockVerboseTxResult, error) {
 	client := rpcClient.reconnect()
 	defer client.Shutdown()
 

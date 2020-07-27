@@ -1,4 +1,4 @@
-module github.com/marpme/digibyte-rosetta-node
+module github.com/arcadiamediagroup/zcoin-rosetta-node
 
 go 1.14
 
