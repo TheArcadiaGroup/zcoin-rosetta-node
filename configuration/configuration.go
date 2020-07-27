@@ -13,7 +13,7 @@ import (
 
 const (
 	// ConfigPath is the ENV variable that will be looked for if not existent
-	ConfigPath = "ROSETTA_DGB_CONFIG_PATH"
+	ConfigPath = "ROSETTA_XZC_CONFIG_PATH"
 )
 
 type (
@@ -44,7 +44,7 @@ type (
 	// for both rosetta and the given node
 	Version struct {
 		RosettaVersion  string `yaml:"rosettaVersion"`
-		DigibyteVersion string `yaml:"digibyteVersion"`
+		ZcoinVersion string `yaml:"ZcoinVersion"`
 	}
 
 	// Config is the overall configuration for this service layer

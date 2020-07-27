@@ -11,15 +11,15 @@ import (
 
 	"github.com/coinbase/rosetta-sdk-go/server"
 	"github.com/coinbase/rosetta-sdk-go/types"
-	"github.com/marpme/digibyte-rosetta-node/client"
+	"github.com/arcadiamediagroup/zcoin-rosetta-node/client"
 )
 
 type networkAPIService struct {
-	client client.DigibyteClient
+	client client.ZcoinClient
 }
 
 // NewNetworkAPIService creates a new service to communicate about Network related topics
-func NewNetworkAPIService(client client.DigibyteClient) server.NetworkAPIServicer {
+func NewNetworkAPIService(client client.ZcoinClient) server.NetworkAPIServicer {
 	return &networkAPIService{
 		client: client,
 	}
@@ -48,7 +48,7 @@ func (network *networkAPIService) NetworkOptions(
 	return &types.NetworkOptionsResponse{
 		Version: &types.Version{
 			RosettaVersion: cfg.Version.RosettaVersion,
-			NodeVersion:    cfg.Version.DigibyteVersion,
+			NodeVersion:    cfg.Version.ZcoinVersion,
 		},
 		Allow: &types.Allow{
 			OperationStatuses: []*types.OperationStatus{
@@ -70,7 +70,7 @@ func (network *networkAPIService) NetworkOptions(
 }
 
 // ValidateNetworkIdentifier validates the network identifier.
-func ValidateNetworkIdentifier(ctx context.Context, client client.DigibyteClient, ni *types.NetworkIdentifier) *types.Error {
+func ValidateNetworkIdentifier(ctx context.Context, client client.ZcoinClient, ni *types.NetworkIdentifier) *types.Error {
 	if ni != nil {
 		cfg := client.GetConfig()
 		if ni.Blockchain != cfg.NetworkIdentifier.Blockchain {

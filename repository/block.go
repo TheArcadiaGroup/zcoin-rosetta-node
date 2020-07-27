@@ -4,8 +4,8 @@ import (
 	"context"
 
 	"github.com/coinbase/rosetta-sdk-go/types"
-	"github.com/marpme/digibyte-rosetta-node/dependency"
-	"github.com/marpme/digibyte-rosetta-node/provider"
+	"github.com/arcadiamediagroup/Zcoin-rosetta-node/dependency"
+	"github.com/arcadiamediagroup/Zcoin-rosetta-node/provider"
 )
 
 type BlockProvider struct {

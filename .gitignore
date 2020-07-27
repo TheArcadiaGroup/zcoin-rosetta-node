@@ -5,7 +5,7 @@
 *.so
 *.dylib
 
-digibyte-rosetta-node
+Zcoin-rosetta-node
 
 # Test binary, built with `go test -c`
 *.test
