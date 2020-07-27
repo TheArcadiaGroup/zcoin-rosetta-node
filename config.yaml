@@ -7,7 +7,7 @@ currency:
 server:
   port: 8080
 node:
-  endpoint: 127.0.0.1:22222
+  endpoint: 127.0.0.1:8888
   tlsEnabled: false
   username: test
   password: test
